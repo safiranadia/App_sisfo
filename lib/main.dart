@@ -1,3 +1,4 @@
+import 'package:app_sisfo/pages/home_page.dart';
 import 'package:app_sisfo/pages/login_page.dart';
 import 'package:flutter/material.dart';
 
@@ -10,8 +11,13 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: LoginPage(),
+    return MaterialApp(
+      initialRoute: '/login',
+      debugShowCheckedModeBanner: false,
+      routes: {
+        '/login': (context) => const LoginPage(),
+        '/home': (context) => const HomePage(),
+      },
     );
   }
 }
