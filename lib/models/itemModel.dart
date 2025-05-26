@@ -8,7 +8,7 @@ class ItemsModel {
 
 class ItemModel {
   int id;
-  String? codeItem;
+  String codeItem;
   String name;
   int? categoryId;
   String? image;
@@ -20,7 +20,7 @@ class ItemModel {
 
   ItemModel({
     required this.id,
-    this.codeItem,
+    required this.codeItem,
     required this.name,
     this.categoryId,
     this.image,
@@ -35,12 +35,13 @@ class ItemModel {
     return ItemModel(
       id: map['id'],
       codeItem: map['code_item'],
-      name: map['name'],
-      categoryId: map['category_id'],
-      image: map['image'],
-      stock: map['stock'],
-      condition: map['condition'],
-      location: map['location'],
+      name: map['name'] as String,
+      categoryId: map['category_id'] as int?,
+      image: map['image'] as String?,
+      stock: map['stock'] as int?,
+      condition: map['condition'] as String?,
+      location: map['location'] as String?,
     );
   }
 }
+

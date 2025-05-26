@@ -4,7 +4,7 @@ import 'package:app_sisfo/repositories/token_repository.dart';
 import 'package:app_sisfo/models/userModel.dart';
 
 class UserService {
-  static const String _baseUrl = 'http://192.168.1.10:8000/api';
+  static const String _baseUrl = 'http://192.168.1.5:8000/api';
   final TokenRepository _tokenRepo = TokenRepository();
 
   Future<Map<String, dynamic>> getBorrow() async {
@@ -110,6 +110,50 @@ class UserService {
         return jsonDecode(response.body);
       } else {
         return {'error': 'Gagal menyimpan data (${response.statusCode})'};
+      }
+    } catch (e) {
+      return {'error': 'Terjadi kesalahan: $e'};
+    }
+  }
+
+  Future<Map<String, dynamic>> getReturnCount() async {
+    try {
+      final token = await _tokenRepo.getToken();
+      if (token == null) return {'error': 'Not authenticated'};
+
+      final userId = await _tokenRepo.getUserId();
+
+      final response = await http.get(
+        Uri.parse('$_baseUrl/returnCount/$userId'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        return {'error': 'Gagal mengambil data (${response.statusCode})'};
+      }
+    } catch (e) {
+      return {'error': 'Terjadi kesalahan: $e'};
+    }
+  }
+
+  Future<Map<String, dynamic>> getBorrowCount() async {
+    try {
+      final token = await _tokenRepo.getToken();
+      if (token == null) return {'error': 'Not authenticated'};
+
+      final userId = await _tokenRepo.getUserId();
+
+      final response = await http.get(
+        Uri.parse('$_baseUrl/borrowCount/$userId'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        return {'error': 'Gagal mengambil data (${response.statusCode})'};
       }
     } catch (e) {
       return {'error': 'Terjadi kesalahan: $e'};

@@ -20,6 +20,7 @@ class AppBarWithDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.white,
         title: Text(title),
         actions: actions,
       ),
@@ -35,9 +36,12 @@ class AppBarWithDrawer extends StatelessWidget {
         children: [
           const DrawerHeader(
             decoration: BoxDecoration(
-              color: Colors.blue,
+              color: Colors.white,
             ),
-            child: Text('Menu Header'),
+            child: Image(
+              image: AssetImage('assets/img/logoSisfo.png'),
+              fit: BoxFit.cover,
+            ),
           ),
           ListTile(
             title: const Text('Home'),
@@ -61,6 +65,14 @@ class AppBarWithDrawer extends StatelessWidget {
               Navigator.of(context).push(MaterialPageRoute(builder: (context) {
                 return BorrowPage();
               }));
+            },
+          ),
+          ListTile(
+            title: const Text('Logout'),
+            onTap: () {
+              // Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+              //   return LoginPage();
+              // }));
             },
           ),
         ],
