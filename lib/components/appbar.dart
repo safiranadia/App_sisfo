@@ -1,7 +1,7 @@
-// appbar_with_drawer.dart
 import 'package:app_sisfo/pages/borrow_page.dart';
 import 'package:app_sisfo/pages/home_page.dart';
 import 'package:app_sisfo/pages/listItem_page.dart';
+import 'package:app_sisfo/pages/report_page.dart';
 import 'package:flutter/material.dart';
 
 class AppBarWithDrawer extends StatelessWidget {
@@ -64,6 +64,14 @@ class AppBarWithDrawer extends StatelessWidget {
             onTap: () {
               Navigator.of(context).push(MaterialPageRoute(builder: (context) {
                 return BorrowPage();
+              }));
+            },
+          ),
+          ListTile(
+            title: const Text('Report'),
+            onTap: () {
+              Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+                return ReportPage();
               }));
             },
           ),

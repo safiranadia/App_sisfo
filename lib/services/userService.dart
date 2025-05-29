@@ -33,6 +33,32 @@ class UserService {
     }
   }
 
+  Future<Map<String, dynamic>> getReturn() async {
+    try {
+      final token = await _tokenRepo.getToken();
+      if (token == null) {
+        return {'error': 'Not authenticated'};
+      }
+
+      final userId = await _tokenRepo.getUserId();
+      final response = await http.get(
+        Uri.parse('$_baseUrl/returns/$userId'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        return {
+          'error': 'Failed to fetch data (${response.statusCode})',
+          'statusCode': response.statusCode
+        };
+      }
+    } catch (e) {
+      return {'error': 'Request failed: $e'};
+    }
+  }
+
   Future<Map<String, dynamic>> getItems() async {
     try {
       final token = await _tokenRepo.getToken();
