@@ -30,17 +30,17 @@ class _ListItemPageState extends State<ListItemPage> {
       _isLoading = true;
     });
 
-    final response = await _userService.getItems();
+    try {
+      final items = await _userService.getItems();
 
-    if (response.containsKey('error')) {
       setState(() {
-        _errorMessage = response['error'];
+        _items = items;
+        print(_items);
         _isLoading = false;
       });
-    } else {
-      final List<dynamic> data = response['data'];
+    } catch (e) {
       setState(() {
-        _items = data.map((e) => ItemModel.fromMap(e)).toList();
+        _errorMessage = 'Failed to fetch items';
         _isLoading = false;
       });
     }
@@ -68,24 +68,34 @@ class _ListItemPageState extends State<ListItemPage> {
                     itemBuilder: (context, index) {
                       final item = _items[index];
                       return InkWell(
-                        onTap: () async {
-                          final userId = await _tokenRepo.getUserId();
-                          if (userId != null) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => BorrowFormPage(
-                                  userId: userId,
-                                  itemId: item.id,
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: Text(item.name),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Kode: ${item.codeItem}'),
+                                    Text('Deskripsi: ${item.name}'),
+                                    Text('Jumlah: ${item.stock}'),
+                                    Text('Status: ${item.condition}'),
+                                    Text('Kategori: ${item.location}'),
+                                  ],
                                 ),
-                              ),
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('User ID not found')),
-                            );
-                          }
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text('Tutup'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
                         },
                         child: Container(
                           margin: const EdgeInsets.only(bottom: 16),
@@ -136,42 +146,8 @@ class _ListItemPageState extends State<ListItemPage> {
                                       spacing: 6,
                                       runSpacing: 4,
                                       children: [
-                                        RichText(
-                                          text: TextSpan(
-                                            style: const TextStyle(
-                                                color: Colors.black),
-                                            children: [
-                                              const TextSpan(
-                                                  text: 'Kode barang: '),
-                                              WidgetSpan(
-                                                child: Container(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                      horizontal: 6,
-                                                      vertical: 2),
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.green[300],
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            4),
-                                                  ),
-                                                  child: Text(
-                                                    item.codeItem,
-                                                    style: const TextStyle(
-                                                      color: Colors.white,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 12,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
                                         Text('Kategori: ${item.categoryId}'),
                                         Text('Jumlah: ${item.stock}'),
-                                        Text('Kondisi: ${item.condition}'),
                                       ],
                                     ),
                                   ],

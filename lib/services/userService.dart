@@ -1,18 +1,17 @@
+import 'package:app_sisfo/models/borrowModel.dart';
+import 'package:app_sisfo/models/itemModel.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:app_sisfo/repositories/token_repository.dart';
-import 'package:app_sisfo/models/userModel.dart';
 
 class UserService {
   static const String _baseUrl = 'http://192.168.1.5:8000/api';
   final TokenRepository _tokenRepo = TokenRepository();
 
-  Future<Map<String, dynamic>> getBorrow() async {
+  Future<List<Borrow>> getBorrow() async {
     try {
       final token = await _tokenRepo.getToken();
-      if (token == null) {
-        return {'error': 'Not authenticated'};
-      }
+      if (token == null) return [];
 
       final userId = await _tokenRepo.getUserId();
       final response = await http.get(
@@ -21,15 +20,13 @@ class UserService {
       );
 
       if (response.statusCode == 200) {
-        return jsonDecode(response.body);
+        final List data = jsonDecode(response.body)['data'];
+        return data.map((e) => Borrow.fromMap(e)).toList();
       } else {
-        return {
-          'error': 'Failed to fetch data (${response.statusCode})',
-          'statusCode': response.statusCode
-        };
+        return [];
       }
     } catch (e) {
-      return {'error': 'Request failed: $e'};
+      return [];
     }
   }
 
@@ -59,11 +56,11 @@ class UserService {
     }
   }
 
-  Future<Map<String, dynamic>> getItems() async {
+  Future<List<ItemModel>> getItems() async {
     try {
       final token = await _tokenRepo.getToken();
       if (token == null) {
-        return {'error': 'Not authenticated'};
+        return [];
       }
 
       final response = await http.get(
@@ -72,15 +69,15 @@ class UserService {
       );
 
       if (response.statusCode == 200) {
-        return jsonDecode(response.body);
+        final Map<String, dynamic> jsonData = jsonDecode(response.body);
+        final List<dynamic> data = jsonData['data'];
+        return data.map((e) => ItemModel.fromMap(e)).toList();
       } else {
-        return {
-          'error': 'Failed to fetch data (${response.statusCode})',
-          'statusCode': response.statusCode
-        };
+        return [];
       }
     } catch (e) {
-      return {'error': 'Request failed: $e'};
+      print('Error: $e');
+      return [];
     }
   }
 

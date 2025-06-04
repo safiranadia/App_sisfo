@@ -27,4 +27,6 @@ class AuthService {
       return {'error': 'Login failed: $e'};
     }
   }
+
+  Future<void> logout() async => await _tokenRepo.deleteToken();
 }

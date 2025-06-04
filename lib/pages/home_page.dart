@@ -48,35 +48,40 @@ class _HomePageState extends State<HomePage> {
             colors: [Colors.white, Color(0xFF87CEFA)],
           ),
         ),
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const Text(
-                  'HALO, USER!',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
+        child: RefreshIndicator(
+          onRefresh: _refreshData,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Text(
+                    'HALO, USER!',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 40),
-                _buildDashboardCard(
-                  title: 'Peminjaman Barang',
-                  value: _borrowResponse.containsKey('error')
-                      ? 'Error'
-                      : '${_borrowResponse['data'] ?? 0}',
-                ),
-                const SizedBox(height: 24),
-                _buildDashboardCard(
-                  title: 'Pengembalian Barang',
-                  value: _returnResponse.containsKey('error')
-                      ? 'Error'
-                      : '${_returnResponse['data'] ?? 0}',
-                ),
-              ],
+                  const SizedBox(height: 40),
+                  _buildDashboardCard(
+                    title: 'Peminjaman Barang',
+                    value: _borrowResponse.containsKey('error')
+                        ? 'Error'
+                        : '${_borrowResponse['data'] ?? 0}',
+                  ),
+                  const SizedBox(height: 24),
+                  _buildDashboardCard(
+                    title: 'Pengembalian Barang',
+                    value: _returnResponse.containsKey('error')
+                        ? 'Error'
+                        : '${_returnResponse['data'] ?? 0}',
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -84,42 +89,47 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildDashboardCard({required String title, required String value}) {
-    return Center(
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 24),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 6,
-              offset: Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          children: [
-            Text(
-              title,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              value,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 32,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+  Future<void> _refreshData() async {
+    await _getReturnCount();
+    await _getBorrowCount();
   }
+}
+
+Widget _buildDashboardCard({required String title, required String value}) {
+  return Center(
+    child: Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 6,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            value,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 32,
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
 }

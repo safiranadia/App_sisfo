@@ -13,7 +13,7 @@ class BorrowPage extends StatefulWidget {
 
 class _BorrowPageState extends State<BorrowPage> {
   final UserService _userService = UserService();
-  List<dynamic> _borrows = [];
+  List<Borrow> _borrows = [];
   bool _isLoading = true;
   String _errorMessage = '';
 
@@ -24,30 +24,16 @@ class _BorrowPageState extends State<BorrowPage> {
   }
 
   Future<void> _fetchBorrows() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = '';
-    });
-
     try {
-      final response = await _userService.getBorrow();
+      final borrows = await _userService.getBorrow();
 
-      if (response.containsKey('error')) {
-        setState(() {
-          _errorMessage = response['error'];
-        });
-      } else {
-        setState(() {
-          _borrows = response['data'] ?? [];
-        });
-      }
+      setState(() {
+        _borrows = borrows;
+        _isLoading = false;
+      });
     } catch (e) {
       setState(() {
-        _errorMessage = 'Failed to load borrows: $e';
-      });
-    } finally {
-      setState(() {
-        _isLoading = false;
+        _errorMessage = 'Failed to fetch borrows: $e';
       });
     }
   }
@@ -83,49 +69,59 @@ class _BorrowPageState extends State<BorrowPage> {
     );
   }
 
-  Widget _buildBorrowCard(Map<String, dynamic> borrow) {
-    final borrowModel = Borrow.fromMap(borrow);
-
+  Widget _buildBorrowCard(Borrow borrow) {
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       child: InkWell(
-        onTap: () {
-          // Navigate to ReturnFormPage when card is tapped
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ReturnFormPage(
-                userId: borrowModel.userId, // Assuming Borrow model has userId
-                borrowId: borrowModel.id,
-              ),
-            ),
-          );
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: Text('Detail Borrow ${borrow.id}'),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Item ID: ${borrow.itemId}'),
+                      Text('Quantity: ${borrow.quantity}'),
+                      Text('Borrow Date: ${borrow.borrowDate}'),
+                      Text('Purposes: ${borrow.purposes}'),
+                      Text('Status: ${borrow.status}'),
+                      Text(
+                        'Approved: ${borrow.isApproved == 1 ? 'Yes' : 'No'}',
+                        style: TextStyle(
+                          color: borrow.isApproved == 1
+                              ? Colors.green
+                              : Colors.red,
+                        ),
+                      ),
+                    ],
+                  ),
+                  actions: [
+                    TextButton(
+                      child: const Text('Close'),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                );
+              },
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(
-                'Borrow ID: ${borrowModel.id}',
+                'Borrow ID: ${borrow.id}',
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 8),
-              Text('Item ID: ${borrowModel.itemId}'),
-              Text('Quantity: ${borrowModel.quantity}'),
-              Text('Borrow Date: ${borrowModel.borrowDate}'),
-              Text('Purposes: ${borrowModel.purposes}'),
-              Text('Status: ${borrowModel.status}'),
               Text(
-                'Approved: ${borrow['is_approved'] == 1 ? 'Yes' : 'No'}',
-                style: TextStyle(
-                  color: borrow['is_approved'] == 1 ? Colors.green : Colors.red,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+                'Item Name: ${borrow.item?.name}',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              )
+            ]),
+          )),
     );
   }
 }

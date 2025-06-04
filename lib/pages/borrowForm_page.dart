@@ -1,17 +1,10 @@
+import 'package:app_sisfo/models/itemModel.dart';
+import 'package:app_sisfo/repositories/token_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:app_sisfo/services/userService.dart';
 
 class BorrowFormPage extends StatefulWidget {
-  final int userId;
-  final int itemId;
-
-  const BorrowFormPage({
-    super.key,
-    required this.userId,
-    required this.itemId,
-  });
-
   @override
   State<BorrowFormPage> createState() => _BorrowFormPageState();
 }
@@ -22,8 +15,18 @@ class _BorrowFormPageState extends State<BorrowFormPage> {
   final TextEditingController _purposesController = TextEditingController();
   int _quantity = 1;
   bool _isSubmitting = false;
+  List<ItemModel> _items = [];
+  ItemModel? _selectedItem;
+  bool _isLoadingItems = true;
 
   final UserService _userService = UserService();
+  final TokenRepository _tokenRepo = TokenRepository();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadItems();
+  }
 
   Future<void> _submitForm() async {
     if (!_formKey.currentState!.validate()) return;
@@ -32,9 +35,11 @@ class _BorrowFormPageState extends State<BorrowFormPage> {
       _isSubmitting = true;
     });
 
+    final userId = await _tokenRepo.getUserId();
+
     final data = {
-      "user_id": widget.userId,
-      "item_id": widget.itemId,
+      "user_id": userId,
+      "item_id": _selectedItem?.id,
       "borrow_date": _borrowDateController.text,
       "quantity": _quantity,
       "purposes": _purposesController.text,
@@ -58,6 +63,15 @@ class _BorrowFormPageState extends State<BorrowFormPage> {
     });
   }
 
+  Future<void> _loadItems() async {
+    final items = await _userService.getItems();
+
+    setState(() {
+      _items = items;
+      _isLoadingItems = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,6 +82,28 @@ class _BorrowFormPageState extends State<BorrowFormPage> {
           key: _formKey,
           child: Column(
             children: [
+              _isLoadingItems
+                  ? const CircularProgressIndicator()
+                  : DropdownButtonFormField<ItemModel>(
+                      decoration: const InputDecoration(
+                        labelText: 'Pilih Item',
+                      ),
+                      value: _selectedItem,
+                      items: _items.map((item) {
+                        return DropdownMenuItem<ItemModel>(
+                          value: item,
+                          child: Text(item.name),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedItem = value;
+                        });
+                      },
+                      validator: (value) =>
+                          value == null ? 'Item wajib dipilih' : null,
+                    ),
+              const SizedBox(height: 12),
               TextFormField(
                 controller: _borrowDateController,
                 readOnly: true,

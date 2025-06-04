@@ -1,11 +1,15 @@
+import 'package:app_sisfo/models/itemModel.dart';
+
 class BorrowsModel {
   List<Borrow> data;
 
-  BorrowsModel({
-    required this.data,
-  });
+  BorrowsModel({required this.data});
 
-  static fromMap(Map<String, dynamic> borrow) {}
+  factory BorrowsModel.fromList(List<dynamic> list) {
+    return BorrowsModel(
+      data: list.map((item) => Borrow.fromMap(item)).toList(),
+    );
+  }
 }
 
 class Borrow {
@@ -17,6 +21,7 @@ class Borrow {
   String purposes;
   String status;
   int isApproved;
+  ItemModel? item;
   DateTime createdAt;
   DateTime updatedAt;
 
@@ -29,6 +34,7 @@ class Borrow {
     required this.purposes,
     required this.status,
     required this.isApproved,
+    this.item,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -43,6 +49,7 @@ class Borrow {
       purposes: map['purposes'],
       status: map['status'],
       isApproved: map['is_approved'],
+      item: map['item'] != null ? ItemModel.fromMap(map['item']) : null,
       createdAt: DateTime.parse(map['created_at']),
       updatedAt: DateTime.parse(map['updated_at']),
     );

@@ -1,7 +1,11 @@
+import 'package:app_sisfo/pages/borrowForm_page.dart';
 import 'package:app_sisfo/pages/borrow_page.dart';
 import 'package:app_sisfo/pages/home_page.dart';
 import 'package:app_sisfo/pages/listItem_page.dart';
+import 'package:app_sisfo/pages/login_page.dart';
 import 'package:app_sisfo/pages/report_page.dart';
+import 'package:app_sisfo/pages/returnForm_page.dart';
+import 'package:app_sisfo/repositories/token_repository.dart';
 import 'package:flutter/material.dart';
 
 class AppBarWithDrawer extends StatelessWidget {
@@ -68,6 +72,14 @@ class AppBarWithDrawer extends StatelessWidget {
             },
           ),
           ListTile(
+            title: const Text('Form Borrow'),
+            onTap: () {
+              Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+                return BorrowFormPage();
+              }));
+            },
+          ),
+          ListTile(
             title: const Text('Report'),
             onTap: () {
               Navigator.of(context).push(MaterialPageRoute(builder: (context) {
@@ -76,11 +88,22 @@ class AppBarWithDrawer extends StatelessWidget {
             },
           ),
           ListTile(
-            title: const Text('Logout'),
+            title: const Text('Form Report'),
             onTap: () {
-              // Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-              //   return LoginPage();
-              // }));
+              Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+                return ReturnFormPage();
+              }));
+            },
+          ),
+          ListTile(
+            title: const Text('Logout'),
+            onTap: () async {
+              final _tokenRepo = TokenRepository();
+              await _tokenRepo.deleteToken();
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (context) => LoginPage()),
+                (Route<dynamic> route) => false,
+              );
             },
           ),
         ],
